@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hostel MongoDB Backend Viewer</title>
+    <style>
+        body { background: #0a0a0a; color: #00ff00; font-family: 'Courier New', Courier, monospace; padding: 2rem; }
+        h1 { border-bottom: 1px solid #00ff00; padding-bottom: 10px; }
+        h2 { color: #00d4ff; margin-top: 30px; border-bottom: 1px dashed #333; padding-bottom: 5px; }
+        .data-block { background: #111; padding: 15px; border: 1px solid #333; margin-bottom: 10px; border-radius: 5px; white-space: pre-wrap; word-wrap: break-word; }
+        .refresh-btn { background: #00ff00; color: #000; padding: 10px 20px; border: none; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+        .refresh-btn:hover { background: #00cc00; }
+        .empty { color: #666; font-style: italic; }
+    </style>
+</head>
+<body>
+    <h1>MongoDB Database Viewer (Backend)</h1>
+    <p>Connected to: In-Memory MongoDB Server | Active Database: Hostel</p>
+    <button class="refresh-btn" onclick="fetchAllData()">REFRESH DATABASE QUERIES</button>
+    
+    <h2>Collection: db.students.find()</h2>
+    <div id="students-content">Fetching...</div>
+
+    <h2>Collection: db.rooms.find()</h2>
+    <div id="rooms-content">Fetching...</div>
+
+    <h2>Collection: db.allocations.find()</h2>
+    <div id="allocations-content">Fetching...</div>
+
+    <script>
+        async function fetchCollection(url, elementId) {
+            const contentDiv = document.getElementById(elementId);
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                contentDiv.innerHTML = '';
+                
+                if (data.length === 0) {
+                    contentDiv.innerHTML = '<div class="data-block empty">No documents found in collection.</div>';
+                    return;
+                }
+
+                data.forEach((doc, index) => {
+                    const html = `<div class="data-block">/* Document ${index + 1} */\n${JSON.stringify(doc, null, 4)}</div>`;
+                    contentDiv.innerHTML += html;
+                });
+            } catch (err) {
+                contentDiv.innerHTML = `<div class="data-block" style="color:red">Error fetching data: ${err.message}</div>`;
+            }
+        }
+
+        function fetchAllData() {
+            document.getElementById('students-content').innerHTML = "Executing query...";
+            document.getElementById('rooms-content').innerHTML = "Executing query...";
+            document.getElementById('allocations-content').innerHTML = "Executing query...";
+            
+            fetchCollection('/api/students', 'students-content');
+            fetchCollection('/api/rooms', 'rooms-content');
+            fetchCollection('/api/allocations', 'allocations-content');
+        }
+        
+        fetchAllData();
+    </script>
+</body>
+</html>

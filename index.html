@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hostel Allocation System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <!-- WebGL Canvas Background -->
+    <div id="canvas-container"></div>
+    
+    <!-- Smooth Scroll Wrapper -->
+    <div id="smooth-wrapper">
+      <div id="smooth-content">
+        
+        <!-- Navigation -->
+        <nav class="navbar">
+          <div class="nav-links">
+            <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;">HOME</a>
+            <a href="#" onclick="switchTab('students-tab'); document.getElementById('section-1').scrollIntoView({behavior: 'smooth'}); return false;">STUDENTS</a>
+            <a href="#" onclick="switchTab('rooms-tab'); document.getElementById('section-1').scrollIntoView({behavior: 'smooth'}); return false;">ROOMS</a>
+            <a href="#" onclick="switchTab('allocations-tab'); document.getElementById('section-1').scrollIntoView({behavior: 'smooth'}); return false;">ALLOCATE</a>
+          </div>
+          <div class="nav-cta">
+            <a href="#" onclick="document.getElementById('section-1').scrollIntoView({behavior: 'smooth'}); return false;">ADMIN DASHBOARD <span class="arrow">↗</span></a>
+          </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+          
+          <div class="hero-top">
+            <span class="copyright">©DBMS PROJECT</span>
+            <div class="side-text-vertical">
+              <span>SMART CAPACITY</span>
+            </div>
+          </div>
+
+          <div class="hero-center">
+            <h1 class="main-title">HOSTEL<br/>NEXUS</h1>
+          </div>
+
+          <div class="hero-bottom">
+            <div class="bottom-left">
+              <span class="echoes">ROOM ALLOCATION SYSTEM</span>
+              <button class="get-started" onclick="document.getElementById('section-1').scrollIntoView({behavior: 'smooth'})">GET STARTED <span class="arrow">↗</span></button>
+            </div>
+            <div class="scroll-indicator">
+              <span>SCROLL DOWN</span>
+              <div class="scroll-line-container">
+                <div class="scroll-line"></div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- DBMS Interface Section -->
+        <section class="content-section" id="section-1">
+          <div class="content-inner dbms-container">
+            <h2 class="fade-up">Admin Dashboard</h2>
+            <p class="fade-up">Manage students, rooms, and allocations.</p>
+            
+            <div class="glass-panel fade-up">
+              <!-- Tab Navigation -->
+              <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('students-tab')">Students</button>
+                <button class="tab-btn" onclick="switchTab('rooms-tab')">Rooms</button>
+                <button class="tab-btn" onclick="switchTab('allocations-tab')">Allocations</button>
+              </div>
+
+              <!-- STUDENTS TAB -->
+              <div id="students-tab" class="tab-content active">
+                <form id="student-form" class="dbms-form">
+                  <div class="form-row">
+                    <input type="text" id="student-name" placeholder="Student Name" required />
+                    <input type="text" id="student-roll" placeholder="Roll Number" required />
+                  </div>
+                  <div class="form-row">
+                    <input type="email" id="student-email" placeholder="Email Address" required />
+                    <input type="text" id="student-contact" placeholder="Contact Number" required />
+                  </div>
+                  <div class="form-actions">
+                    <button type="submit" class="btn-primary">REGISTER STUDENT</button>
+                  </div>
+                </form>
+                <div class="table-container mt-2">
+                  <table class="dbms-table">
+                    <thead><tr><th>ROLL NO</th><th>NAME</th><th>STATUS</th><th>ACTIONS</th></tr></thead>
+                    <tbody id="student-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- ROOMS TAB -->
+              <div id="rooms-tab" class="tab-content">
+                <form id="room-form" class="dbms-form">
+                  <div class="form-row">
+                    <input type="text" id="room-number" placeholder="Room Number (e.g. 101)" required />
+                    <input type="number" id="room-capacity" placeholder="Capacity (e.g. 2)" min="1" required />
+                  </div>
+                  <div class="form-actions">
+                    <button type="submit" class="btn-primary">ADD ROOM</button>
+                  </div>
+                </form>
+                <div class="table-container mt-2">
+                  <table class="dbms-table">
+                    <thead><tr><th>ROOM NO</th><th>CAPACITY</th><th>OCCUPANCY</th><th>ACTIONS</th></tr></thead>
+                    <tbody id="room-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- ALLOCATIONS TAB -->
+              <div id="allocations-tab" class="tab-content">
+                <form id="allocation-form" class="dbms-form">
+                  <div class="form-row">
+                    <select id="alloc-student" required>
+                      <option value="" disabled selected>Select Unallocated Student</option>
+                    </select>
+                    <select id="alloc-room" required>
+                      <option value="" disabled selected>Select Available Room</option>
+                    </select>
+                  </div>
+                  <div class="form-actions">
+                    <button type="submit" class="btn-primary">ALLOCATE ROOM</button>
+                  </div>
+                </form>
+                <div class="table-container mt-2">
+                  <table class="dbms-table">
+                    <thead><tr><th>STUDENT</th><th>ROOM NO</th><th>ALLOCATED DATE</th><th>ACTIONS</th></tr></thead>
+                    <tbody id="allocation-table-body"></tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- Final Info Section replacing "Fluid Interactions" -->
+        <section class="content-section" id="section-2">
+          <div class="content-inner right-align">
+            <h2 class="fade-up">Real-Time Validation</h2>
+            <p class="fade-up">The backend Engine verifies room capacities and duplicate entries instantly, preventing overallocation and maintaining database integrity through atomic transactions.</p>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <script type="module" src="./main.js"></script>
+    <script type="module" src="./db-client.js"></script>
+    
+    <script>
+      window.switchTab = function(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,570 @@
+:root {
+  --bg: #000000;
+  --text: #ffffff;
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Background Canvas */
+#canvas-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1; /* Below text, above bg */
+  pointer-events: auto; /* Allow mouse interaction for 3d model */
+}
+
+/* Scroll Wrapper */
+#smooth-wrapper {
+  position: relative;
+  z-index: 2; /* Text goes above canvas */
+  pointer-events: none; /* Let clicks pass through to canvas if needed */
+}
+
+/* We must enable pointer events on text elements so links/buttons work */
+.navbar, .hero-top, .hero-bottom, .content-section {
+  pointer-events: auto;
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 2.5rem 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  mix-blend-mode: difference;
+}
+
+.nav-links {
+  display: flex;
+  gap: 3rem;
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  font-weight: 500;
+}
+
+.nav-links a {
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.nav-links a:hover {
+  opacity: 1;
+}
+
+.nav-cta {
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+}
+
+.nav-cta .arrow {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+  transition: transform 0.3s ease;
+}
+
+.nav-cta:hover .arrow {
+  transform: translate(3px, -3px);
+}
+
+/* Hero Section */
+.hero {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  padding: 2.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Hero Top Elements */
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6rem;
+}
+
+.copyright {
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+/* Vertical Text on the Right */
+.side-text-vertical {
+  position: absolute;
+  right: 4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  opacity: 0.7;
+  font-weight: 500;
+}
+
+/* Main Title - BORN OF MYTH */
+.hero-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.main-title {
+  font-family: var(--font-serif);
+  font-size: 13vw; /* Massive */
+  line-height: 0.85;
+  font-weight: 400;
+  letter-spacing: -3px;
+  
+  /* Metallic / Glassy Gradient Text */
+  background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.4) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  
+  /* Initial state for GSAP */
+  opacity: 0;
+  transform: translateY(50px);
+  mix-blend-mode: overlay; /* Allows the 3D model to shine through beautifully */
+}
+
+/* Hero Bottom Elements */
+.hero-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 2rem;
+}
+
+.bottom-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.echoes {
+  font-size: 0.75rem;
+  letter-spacing: 5px;
+  opacity: 0.7;
+  font-weight: 500;
+}
+
+.get-started {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 1.2rem 2.5rem;
+  border-radius: 50px;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(10px);
+}
+
+.get-started:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.get-started .arrow {
+  font-size: 1rem;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.get-started:hover .arrow {
+  transform: translate(4px, -4px);
+}
+
+.scroll-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1.5rem;
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  opacity: 0.7;
+}
+
+.scroll-line-container {
+  height: 80px;
+  width: 1px;
+  background: rgba(255,255,255,0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.scroll-line {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  position: absolute;
+  top: -100%;
+  animation: scrollDown 2s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+
+@keyframes scrollDown {
+  0% { top: -100%; }
+  100% { top: 100%; }
+}
+
+/* Content Sections */
+.content-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 0 10vw;
+  position: relative;
+}
+
+.content-inner {
+  max-width: 600px;
+}
+
+.content-inner.right-align {
+  margin-left: auto;
+  text-align: right;
+}
+
+.content-section h2 {
+  font-family: var(--font-serif);
+  font-size: 5rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.content-section p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  opacity: 0.6;
+  font-weight: 300;
+}
+
+/* Utility for GSAP */
+.fade-up {
+  opacity: 0;
+  transform: translateY(60px);
+}
+
+/* =========================================================
+   DBMS Glassmorphic UI Styles
+   ========================================================= */
+
+.dbms-container {
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.dbms-container h2 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.4) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dbms-container p {
+  margin-bottom: 2rem;
+  letter-spacing: 1px;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 2.5rem;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+/* Form Styles */
+.dbms-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group, .form-row {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.form-row input, .form-row select {
+  flex: 1;
+}
+
+input, select {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 15px rgba(157, 0, 255, 0.3);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+select {
+  appearance: none;
+  cursor: pointer;
+}
+
+select option {
+  background: #111;
+  color: #fff;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.btn-primary, .btn-secondary, .action-btn {
+  padding: 0.8rem 1.5rem;
+  border-radius: 50px;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+  color: #fff;
+  box-shadow: 0 5px 15px rgba(157, 0, 255, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Table Styles */
+.table-container {
+  overflow-x: auto;
+}
+
+.dbms-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.dbms-table th {
+  padding: 1rem;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-weight: 600;
+}
+
+.dbms-table td {
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+
+.dbms-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.cell-name {
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.status-badge.active { background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3); }
+.status-badge.dormant { background: rgba(255, 255, 255, 0.1); color: #aaaaaa; border: 1px solid rgba(255, 255, 255, 0.3); }
+.status-badge.corrupted { background: rgba(255, 51, 102, 0.1); color: #ff3366; border: 1px solid rgba(255, 51, 102, 0.3); }
+.status-badge.syncing { background: rgba(0, 212, 255, 0.1); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.3); }
+
+/* Power Bar */
+.cell-power {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.power-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  max-width: 100px;
+}
+
+.power-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
+  box-shadow: 0 0 10px var(--accent-blue);
+  transition: width 0.5s ease;
+}
+
+/* Action Buttons */
+.cell-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.65rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.delete-btn:hover {
+  background: rgba(255, 51, 102, 0.2);
+  border-color: #ff3366;
+  color: #ff3366;
+}
+
+.empty-msg {
+  text-align: center;
+  padding: 3rem !important;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 2px;
+}
+
+/* Tab Navigation */
+.tab-nav {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1rem;
+}
+
+.tab-btn {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab-btn.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 15px rgba(157, 0, 255, 0.2);
+}
+
+.tab-content {
+  display: none;
+  animation: fadeIn 0.4s ease;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mt-2 { margin-top: 2rem; }
+
+/* Custom Power Fill Colors */
+.power-fill.full {
+  background: linear-gradient(90deg, #ff3366, #ff0000);
+  box-shadow: 0 0 10px #ff3366;
+}
