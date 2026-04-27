@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Admin | Hostel System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #00d4ff;
+            --danger: #ff3366;
+            --text: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; letter-spacing: -1px; }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .admin-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        button {
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--glass-border);
+            background: var(--glass);
+            color: white;
+        }
+
+        button:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
+        .btn-danger { background: rgba(255, 51, 102, 0.1); color: var(--danger); border-color: rgba(255, 51, 102, 0.3); }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
+        .section {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            backdrop-filter: blur(20px);
+        }
+
+        h2 { font-size: 1.2rem; margin-bottom: 1.5rem; opacity: 0.6; letter-spacing: 2px; text-transform: uppercase; }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { padding: 1rem; font-size: 0.7rem; color: rgba(255,255,255,0.4); border-bottom: 1px solid var(--glass-border); text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 1rem; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .empty { padding: 3rem; text-align: center; opacity: 0.4; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Database Control Center</h1>
+        <div id="status" class="status-badge">SYSTEM ONLINE</div>
+    </div>
+
+    <div class="admin-controls">
+        <button onclick="fetchAllData()">Refresh Data</button>
+        <button onclick="seedData()">Seed Mock Data</button>
+        <button class="btn-danger" onclick="clearData()">Clear All Data</button>
+    </div>
+
+    <div class="section">
+        <h2>Students Table</h2>
+        <div id="students-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Roll No</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="students-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Rooms Table</h2>
+        <div id="rooms-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Room No</th>
+                        <th>Capacity</th>
+                        <th>Occupancy</th>
+                    </tr>
+                </thead>
+                <tbody id="rooms-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Allocations Table</h2>
+        <div id="allocations-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Student</th>
+                        <th>Room</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="allocations-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        async function fetchTable(endpoint, bodyId, mapper) {
+            const tbody = document.getElementById(bodyId);
+            try {
+                const res = await fetch(endpoint);
+                const data = await res.json();
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="empty">No data available</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.map(mapper).join('');
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:red">Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        function fetchAllData() {
+            fetchTable('/api/students', 'students-body', s => `
+                <tr>
+                    <td>${s._id}</td>
+                    <td>${s.name}</td>
+                    <td>${s.rollNo}</td>
+                    <td>${s.email}</td>
+                    <td>${s.isAllocated ? 'Allocated' : 'Pending'}</td>
+                </tr>
+            `);
+
+            fetchTable('/api/rooms', 'rooms-body', r => `
+                <tr>
+                    <td>${r._id}</td>
+                    <td>${r.roomNumber}</td>
+                    <td>${r.capacity}</td>
+                    <td>${r.currentOccupancy}</td>
+                </tr>
+            `);
+
+            fetchTable('/api/allocations', 'allocations-body', a => `
+                <tr>
+                    <td>${a._id}</td>
+                    <td>${a.studentId.name}</td>
+                    <td>${a.roomId.roomNumber}</td>
+                    <td>${new Date(a.allocatedAt).toLocaleDateString()}</td>
+                </tr>
+            `);
+        }
+
+        async function clearData() {
+            if (!confirm('WARNING: This will permanently delete ALL students, rooms, and allocations. Proceed?')) return;
+            await fetch('/api/admin/clear-data', { method: 'POST' });
+            fetchAllData();
+        }
+
+        async function seedData() {
+            await fetch('/api/admin/seed-data', { method: 'POST' });
+            fetchAllData();
+        }
+
+        fetchAllData();
+    </script>
+</body>
+</html>

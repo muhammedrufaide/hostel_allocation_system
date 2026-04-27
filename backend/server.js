@@ -8,8 +8,8 @@ import mysql from 'mysql2/promise';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load env from root
-dotenv.config({ path: path.join(__dirname, '../.env') });
+// Load env from current directory (backend/)
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -90,30 +90,44 @@ async function initDB() {
       )
     `);
 
-    // Seed initial data if empty
-    const [roomsCount] = await poolConn.query('SELECT COUNT(*) as count FROM rooms');
-    if (roomsCount[0].count === 0) {
-      await poolConn.query('INSERT INTO rooms (roomNumber, capacity) VALUES ("101", 2), ("102", 3), ("201", 1)');
-      await poolConn.query('INSERT INTO students (name, rollNo, email, contact) VALUES ("John Doe", "CS101", "john@example.com", "1234567890"), ("Jane Smith", "CS102", "jane@example.com", "0987654321")');
-      console.log('🌱 Seeded initial Rooms and Students into MySQL.');
-    }
-
     poolConn.release();
     console.log('🚀 Database fully initialized.');
   } catch (err) {
     console.error('❌ MySQL Initialization Error:', err.message);
-    console.log('💡 Tip: Please check your MySQL credentials in the .env file.');
   }
 }
 
 initDB();
 
-// Serve the backend viewer page
-app.get('/backend', (req, res) => {
-  res.sendFile(path.join(__dirname, 'backend-viewer.html'));
+// --- ADMIN / DATA MANAGEMENT ENDPOINTS ---
+
+app.post('/api/admin/clear-data', async (req, res) => {
+  if (!pool) return res.status(503).json({ error: 'Database not initialized' });
+  try {
+    const connection = await pool.getConnection();
+    await connection.query('SET FOREIGN_KEY_CHECKS = 0');
+    await connection.query('TRUNCATE TABLE allocations');
+    await connection.query('TRUNCATE TABLE students');
+    await connection.query('TRUNCATE TABLE rooms');
+    await connection.query('SET FOREIGN_KEY_CHECKS = 1');
+    connection.release();
+    res.status(200).json({ message: 'All data cleared successfully' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- REST API ENDPOINTS: STUDENTS ---
+app.post('/api/admin/seed-data', async (req, res) => {
+  if (!pool) return res.status(503).json({ error: 'Database not initialized' });
+  try {
+    const connection = await pool.getConnection();
+    await connection.query('INSERT IGNORE INTO rooms (roomNumber, capacity) VALUES ("101", 2), ("102", 3), ("201", 1)');
+    await connection.query('INSERT IGNORE INTO students (name, rollNo, email, contact) VALUES ("John Doe", "CS101", "john@example.com", "1234567890"), ("Jane Smith", "CS102", "jane@example.com", "0987654321")');
+    connection.release();
+    res.status(200).json({ message: 'Seed data added' });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// --- REST API ENDPOINTS ---
+
 app.get('/api/students', async (req, res) => {
   if (!pool) return res.status(503).json({ error: 'Database not initialized' });
   try {
@@ -145,7 +159,6 @@ app.delete('/api/students/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- REST API ENDPOINTS: ROOMS ---
 app.get('/api/rooms', async (req, res) => {
   if (!pool) return res.status(503).json({ error: 'Database not initialized' });
   try {
@@ -178,7 +191,6 @@ app.delete('/api/rooms/:id', async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// --- REST API ENDPOINTS: ALLOCATIONS ---
 app.get('/api/allocations', async (req, res) => {
   if (!pool) return res.status(503).json({ error: 'Database not initialized' });
   try {
@@ -257,6 +269,20 @@ app.delete('/api/allocations/:id', async (req, res) => {
   } finally {
     connection.release();
   }
+});
+
+// Serve the backend viewer page
+app.get('/backend', (req, res) => {
+  res.sendFile(path.join(__dirname, 'backend-viewer.html'));
+});
+
+// Production Static Serving
+const distPath = path.join(__dirname, '../frontend/dist');
+app.use(express.static(distPath));
+
+// All other routes serve index.html (SPA)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 app.listen(PORT, () => {
