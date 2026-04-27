@@ -16,11 +16,14 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
+const isSSL = process.env.DB_SSL === 'true' || (process.env.DB_HOST && process.env.DB_HOST.includes('aivencloud'));
+
 const DB_CONFIG = {
   host: process.env.DB_HOST || '127.0.0.1',
   port: parseInt(process.env.DB_PORT) || 3306,
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
+  ssl: isSSL ? { rejectUnauthorized: false } : undefined,
 };
 
 let pool;
@@ -36,14 +39,18 @@ const mapId = (obj) => {
 // Connect and Test MySQL
 async function initDB() {
   try {
-    console.log('🔍 Initializing MySQL connection...');
-    const connection = await mysql.createConnection(DB_CONFIG);
-    console.log('✅ Connected to MySQL server.');
-
     const dbName = process.env.DB_NAME || 'hostel_db';
-    await connection.query(`CREATE DATABASE IF NOT EXISTS ${dbName}`);
-    console.log(`✅ Database "${dbName}" ensured.`);
-    await connection.end();
+    console.log('🔍 Initializing MySQL connection...');
+
+    // Try to create the database (skipped if user lacks permission e.g. Aiven)
+    try {
+      const connection = await mysql.createConnection(DB_CONFIG);
+      await connection.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``);
+      await connection.end();
+      console.log(`✅ Database "${dbName}" ensured.`);
+    } catch (dbCreateErr) {
+      console.log(`ℹ️ Skipped CREATE DATABASE (may already exist): ${dbCreateErr.message}`);
+    }
 
     // Create the pool with the database name now
     pool = mysql.createPool({
@@ -56,6 +63,7 @@ async function initDB() {
 
     const poolConn = await pool.getConnection();
     
+
     // Create tables
     await poolConn.query(`
       CREATE TABLE IF NOT EXISTS students (
