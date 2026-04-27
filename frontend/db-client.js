@@ -70,13 +70,15 @@ function renderRooms() {
     tr.innerHTML = `
       <td class="cell-name">${rm.roomNumber}</td>
       <td>${rm.capacity} Beds</td>
-      <td class="cell-power">
-        <div class="power-bar">
-          <div class="${powerClass}" style="width: ${occupancyPercent}%"></div>
+      <td>
+        <div class="cell-power">
+          <div class="power-bar">
+            <div class="${powerClass}" style="width: ${occupancyPercent}%"></div>
+          </div>
+          <span>${rm.currentOccupancy} / ${rm.capacity}</span>
         </div>
-        ${rm.currentOccupancy} / ${rm.capacity}
       </td>
-      <td class="cell-actions">
+      <td class="cell-actions" style="text-align: right;">
         <button class="action-btn delete-btn" onclick="deleteRoom('${rm._id}')">DELETE</button>
       </td>
     `;
