@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { existsSync } from 'fs';
 import mysql from 'mysql2/promise';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -284,14 +285,19 @@ app.get('/backend', (req, res) => {
   res.sendFile(path.join(__dirname, 'backend-viewer.html'));
 });
 
-// Production Static Serving
+// Production Static Serving (only if frontend/dist exists)
 const distPath = path.join(__dirname, '../frontend/dist');
-app.use(express.static(distPath));
-
-// All other routes serve index.html (SPA)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
-});
+if (existsSync(distPath)) {
+  app.use(express.static(distPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+} else {
+  // Split deployment mode (Vercel + Render) - API only
+  app.get('/', (req, res) => {
+    res.json({ status: '🚀 Hostel API Backend is Live', docs: '/api/students' });
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`🚀 Hostel API Server running on port ${PORT}`);
