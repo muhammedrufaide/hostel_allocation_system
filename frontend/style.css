@@ -370,12 +370,16 @@ input::placeholder {
 input:focus, select:focus {
   border-color: var(--accent-purple);
   box-shadow: 0 0 15px rgba(157, 0, 255, 0.3);
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.8);
 }
 
 select {
   appearance: none;
   cursor: pointer;
+}
+
+select:invalid {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 select option {
@@ -402,14 +406,16 @@ select option {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
-  box-shadow: 0 5px 15px rgba(157, 0, 255, 0.3);
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.05);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
 }
 
 .btn-secondary {
@@ -444,7 +450,8 @@ select option {
 }
 
 .dbms-table th:last-child {
-  text-align: right;
+  text-align: center;
+  width: 120px;
 }
 
 .dbms-table td {
@@ -455,6 +462,11 @@ select option {
   vertical-align: middle;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
   white-space: nowrap; /* Prevent ugly wrapping on small screens */
+}
+
+.dbms-table td:last-child {
+  text-align: center;
+  width: 120px;
 }
 
 .dbms-table tr:hover td {
@@ -498,14 +510,9 @@ select option {
 
 .power-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
-  box-shadow: 0 0 10px var(--accent-blue);
-  transition: width 0.5s ease, background 0.3s ease;
-}
-
-.power-fill.full {
-  background: linear-gradient(90deg, var(--danger-red), #ff0044);
-  box-shadow: 0 0 15px var(--danger-red);
+  background: var(--danger-red);
+  box-shadow: 0 0 10px var(--danger-red);
+  transition: width 0.5s ease;
 }
 
 /* Action Buttons */
