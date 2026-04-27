@@ -78,6 +78,7 @@
             padding: 2rem;
             margin-bottom: 3rem;
             backdrop-filter: blur(20px);
+            overflow-x: auto; /* Makes table horizontally scrollable on mobile */
         }
 
         h2 { font-size: 1.2rem; margin-bottom: 1.5rem; opacity: 0.6; letter-spacing: 2px; text-transform: uppercase; }
@@ -88,6 +89,17 @@
         tr:hover td { background: rgba(255,255,255,0.02); }
 
         .empty { padding: 3rem; text-align: center; opacity: 0.4; font-style: italic; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .header { flex-direction: column; gap: 1rem; align-items: flex-start; margin-bottom: 2rem; }
+            h1 { font-size: 1.8rem; }
+            .admin-controls { flex-direction: column; width: 100%; gap: 0.5rem; margin-bottom: 2rem; }
+            .admin-controls button { width: 100%; }
+            .section { padding: 1rem; margin-bottom: 2rem; }
+            th, td { padding: 0.75rem 0.5rem; font-size: 0.75rem; white-space: nowrap; }
+        }
     </style>
 </head>
 <body>
