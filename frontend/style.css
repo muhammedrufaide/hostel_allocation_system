@@ -603,7 +603,15 @@ select option {
 }
 
 @media (max-width: 480px) {
-  .main-title { font-size: 22vw; }
+  .main-title {
+    font-size: 22vw;
+    mix-blend-mode: normal;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.75) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 1 !important;
+    transform: none !important;
+  }
   .dbms-container h2 { font-size: 1.8rem; }
   .btn-primary, .btn-secondary { padding: 0.7rem 1.2rem; font-size: 0.7rem; }
 }
